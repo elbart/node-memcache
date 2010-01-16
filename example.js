@@ -1,9 +1,14 @@
 var sys      = require('sys');
 var memcache = require('./memcache');
 
-mcClient = new memcache.Client();
-// mcClient.query('stats', function(data) {sys.puts(data)});
+var onConnect = function() {
+    mcClient.query('set test 0 60 5\r\ntimee');
+    setTimeout(function () {
+        mcClient.query('get test');
+        mcClient.close();
+    }, 1000);
+};
 
-mcClient.query('set test 0 60 4\r\ntoni', function(data) {sys.puts('setter... ' + data)});
-mcClient.query('get test', function(data) {sys.puts('getter... ' + data)});
-mcClient.close();
+mcClient = new memcache.Client();
+mcClient.connect(onConnect);
+
