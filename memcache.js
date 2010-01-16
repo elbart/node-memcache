@@ -18,15 +18,14 @@ sys.inherits(Client, process.EventEmitter);
 
 Client.prototype.connect = function(callback) {
     var self  = this;
-    
     this.conn = tcp.createConnection(this.port, this.host);
     
     this.conn.addListener('connect', function() {
-          self.emit('connect');
-          if (typeof(callback) === 'function') {
-              callback();
-          }
-      });
+        self.emit('connect');
+        if (typeof(callback) === 'function') {
+            callback();
+        }
+    });
 
     this.conn.addListener('receive', function(data) {
         self.buffer += data;
