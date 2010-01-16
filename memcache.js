@@ -3,13 +3,16 @@ var sys = require('sys'),
     
 var KILL_TIMEOUT = 2000;
 
-exports.Client = function() {
-    var connection = tcp.createConnection(11211);
-    
-    var queue = [];
-    var q_stack = [];
-    var kill_signal = false;
-    var auto_kill_pid = 0;
+exports.Client = function(port, host) {
+    var
+        host = host || 'localhost',
+        port = port || 11211,
+        queue = [],
+        q_stack = [],
+        kill_signal = false,
+        auto_kill_pid = 0;
+
+    var connection = tcp.createConnection(port, host);
     
     connection.addListener('receive', function(data) {
         var callback = q_stack.shift();
@@ -21,10 +24,6 @@ exports.Client = function() {
                 clearTimeout(auto_kill_pid);
             }
         }
-    });
-
-    connection.addListener("eof", function () {
-        this.close();
     });
 
     connection.addListener('connect', function() {
@@ -40,13 +39,10 @@ exports.Client = function() {
     
     return {
 
-        /**
-         *  Query the  FleetDB server. The optional ´´callback´´ is called when
-         *  the server returns a response.
-         */
         query: function(q, callback) {
             var data = q + '\r\n';
             q_stack.push(callback || function() {});
+            sys.debug(q_stack);
             if (connection.readyState == 'open') {
                 connection.send(data);
             } else {
@@ -54,9 +50,6 @@ exports.Client = function() {
             }
         },
 
-        /**
-         *  Close the established connection with the server.
-         */
         close: function() {
             if (q_stack.length) {
                 // We are still waiting for some server responses. Handle them, then 
