@@ -1,14 +1,16 @@
 var sys      = require('sys');
 var memcache = require('./memcache');
 
+var mycb = function(data) {
+    sys.debug('received: ' + data);
+}
+
 var onConnect = function() {
-    mcClient.query('set test 0 60 5\r\ntimee');
-    setTimeout(function () {
-        mcClient.query('get test');
+    mcClient.get('test', function (data) {
+        sys.debug('received: ' + data);
         mcClient.close();
-    }, 1000);
+    });
 };
 
 mcClient = new memcache.Client();
 mcClient.connect(onConnect);
-
