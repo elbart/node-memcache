@@ -8,8 +8,20 @@ var mycb = function(data) {
 var onConnect = function() {
     mcClient.get('test', function (data) {
         sys.debug('received: ' + data);
-        mcClient.close();
+        
+        mcClient.mc_delete('test', function (data) {
+            sys.debug('received: ' + data);
+            
+            mcClient.get('test', function (data) {
+                sys.debug('received: ' + data);
+                mcClient.close();
+            });
+        });
     });
+    
+
+    
+    // mcClient.query('get test');
 };
 
 mcClient = new memcache.Client();
