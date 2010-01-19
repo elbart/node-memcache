@@ -50,11 +50,11 @@ Client.prototype.connect = function(callback) {
     });
 };
 
-Client.prototype.query = function(query, type, callback) {
+Client.prototype.query = function(query, type) {
     var self  = this;
     var data = query + crlf;
     var promise = new process.Promise();
-    this.callbacks.push({type : type, promise: promise, fn : callback});
+    this.callbacks.push({type : type, promise: promise});
     self.sends += 1;
     this.conn.send(data);
     
@@ -66,12 +66,12 @@ Client.prototype.close = function() {
     this.conn = null;
 };
 
-Client.prototype.get = function(key, callback) {
-    return this.query('get ' + key, 'get', callback);
+Client.prototype.get = function(key) {
+    return this.query('get ' + key, 'get');
 };
 
-Client.prototype.mc_delete = function(key, callback) {
-	return this.query('delete ' + key, 'delete', callback);
+Client.prototype.mc_delete = function(key) {
+	return this.query('delete ' + key, 'delete');
 };
 
 Client.prototype.handle_received_data = function (buffer) {
@@ -81,7 +81,6 @@ Client.prototype.handle_received_data = function (buffer) {
         var result_value = result[0];
         var next_result_at = result[1];
         var callback = this.callbacks.shift();
-        sys.debug(callback.type);
         
         if (result_value === null) {
             callback.promise.emitError('server replied with error');
@@ -89,7 +88,7 @@ Client.prototype.handle_received_data = function (buffer) {
         
         self.buffer = self.buffer.substr(next_result_at);
         
-        if (callback && typeof(callback.fn) === 'function') {
+        if (callback && typeof(callback.promise) === 'function') {
             callback.promise.emitSuccess(result_value);
         }
     }
