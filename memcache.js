@@ -54,7 +54,7 @@ Client.prototype.query = function(query, type, callback) {
     var self  = this;
     var data = query + crlf;
     var promise = new process.Promise();
-    this.callbacks.push({type : 'get', promise: promise, fn : callback});
+    this.callbacks.push({type : type, promise: promise, fn : callback});
     self.sends += 1;
     this.conn.send(data);
     
@@ -67,12 +67,11 @@ Client.prototype.close = function() {
 };
 
 Client.prototype.get = function(key, callback) {
-    this.callbacks.push({type : 'get', fn : callback});
-    return this.query('get ' + key);
+    return this.query('get ' + key, 'get', callback);
 };
 
 Client.prototype.mc_delete = function(key, callback) {
-    return this.query('delete ' + key, 'delete', callback);
+	return this.query('delete ' + key, 'delete', callback);
 };
 
 Client.prototype.handle_received_data = function (buffer) {
@@ -82,6 +81,7 @@ Client.prototype.handle_received_data = function (buffer) {
         var result_value = result[0];
         var next_result_at = result[1];
         var callback = this.callbacks.shift();
+        sys.debug(callback.type);
         
         if (result_value === null) {
             callback.promise.emitError('server replied with error');
@@ -125,7 +125,7 @@ Client.prototype.handle_get = function(buffer) {
     var end_indicator_len = 3;
     
     if (buffer.indexOf('END') == 0) {
-        return [result_value, end_indicator_len];
+        return [result_value, end_indicator_len + crlf_len];
     } else {
         var first_line_len = buffer.indexOf(crlf) + crlf_len;
         var result_len     = buffer.substr(0, first_line_len).split(' ')[3];
