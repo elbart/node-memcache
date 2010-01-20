@@ -1,24 +1,37 @@
 var sys      = require('sys');
 var memcache = require('./memcache');
 
-var mycb = function(data) {
-    sys.debug('received: ' + data);
-};
+function microtime(get_as_float) {  
+    var now = new Date().getTime() / 1000;  
+    var s = parseInt(now);
+    return (get_as_float) ? now : (Math.round((now - s) * 1000) / 1000) + ' ' + s;  
+}
 
 var onConnect = function() {
-    mcClient.get('test xxx').addCallback(function(data) {
-        sys.debug('recieved: ' + data);
-    });
-    
-    mcClient.mc_delete('test').addCallback(function(data) {
-        sys.debug('recieved: ' + data);
-    }).addErrback(function(data) {
-    	sys.debug('custom error handling');
-    	mcClient.close();
-    });
-    
-    // mcClient.query('get test');
+	mcClient.get('test').addCallback(function(data) {
+		sys.debug(data);
+		mcClient.close();
+	});
+};
+
+var benchmark = function() {
+	var count = 20000;
+	start = microtime(true);
+	var x = 0;
+	
+	for (var i=0; i<=count; i++) {
+		mcClient.get('test').addCallback(function(data) {
+			x += 1;		
+			if (x == count) {
+				end = microtime(true);
+				sys.debug('total time: ' + (end - start));
+			}
+		});
+	}
+	
+	mcClient.close();
 };
 
 mcClient = new memcache.Client();
 mcClient.connect(onConnect);
+

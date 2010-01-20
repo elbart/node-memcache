@@ -22,32 +22,47 @@ var Client = exports.Client = function(port, host) {
     this.sends = 0;
     this.receives = 0;
     this.callbacks = [];
+    this.replies = 0;
 };
 
 sys.inherits(Client, process.EventEmitter);
 
-Client.prototype.connect = function(callback) {
-    var self  = this;
-    this.conn = tcp.createConnection(this.port, this.host);
-    
-    this.conn.addListener('connect', function() {
-        self.emit('connect');
-        if (typeof(callback) === 'function') {
-            callback();
-        }
-    });
-
-    this.conn.addListener('receive', function(data) {
-        sys.debug(data);
-        self.buffer += data;
-        self.receives += 1;
-        self.handle_received_data(self.buffer);
-    });
-
-    this.conn.addListener('close', function() {
-        sys.debug('receives: ' + self.receives + ' --- sends: ' + self.sends);
-        self.emit('close');
-    });
+Client.prototype.connect = function (callback) {
+	if (!this.conn) {
+	    this.conn = new tcp.createConnection(this.port, this.host);
+    }
+	
+	if (this.conn.readyState === "open" && typeof(callback) === 'function') {
+		callback();
+	} else {
+		var self = this;
+	 
+	    this.conn.addListener("connect", function () {
+	        this.setTimeout(0);          // try to stay connected.
+	        this.setNoDelay();
+		  	self.emit("connect");
+	  		if (typeof(callback) === 'function')
+	  			callback();
+	    }); 
+	 
+	    this.conn.addListener("receive", function (data) {
+	    	self.buffer += data;
+	    	self.recieves += 1;
+	    	self.handle_received_data();
+	    });
+	 
+		    this.conn.addListener("eof", function () {
+		    	if (self.conn && self.conn.readyState) {
+		    		self.conn.close();
+		        	self.conn = null;
+		      	}
+		    });
+	 
+	    this.conn.addListener("close", function () {
+	    	self.conn = null;
+	      	self.emit("close");
+	    });
+	}
 };
 
 Client.prototype.query = function(query, type) {
@@ -61,9 +76,11 @@ Client.prototype.query = function(query, type) {
     return promise;
 };
 
-Client.prototype.close = function() {
-    this.conn.close();
-    this.conn = null;
+Client.prototype.close = function(idx) {
+	if (this.conn && this.conn.readyState === "open") {
+		this.conn.close();
+	    this.conn = null;
+	}
 };
 
 Client.prototype.get = function(key) {
@@ -74,27 +91,43 @@ Client.prototype.mc_delete = function(key) {
 	return this.query('delete ' + key, 'delete');
 };
 
-Client.prototype.handle_received_data = function (buffer) {
+Client.prototype.handle_received_data = function () {
     var self = this;
-    while (self.buffer.length > 0) {
-        var result = this.determine_reply_handler(self.buffer);
+    
+    while (this.buffer.length > 0) {
+        var result = this.determine_reply_handler(this.buffer);
+        
+        if (result == null) {
+        	break;
+        }
+        
         var result_value = result[0];
         var next_result_at = result[1];
+        
+        if (next_result_at > this.buffer.length) {
+        	break;
+        }
+        
         var callback = this.callbacks.shift();
         
         if (result_value === null) {
             callback.promise.emitError('server replied with error');
         }
         
-        self.buffer = self.buffer.substr(next_result_at);
+        this.buffer = this.buffer.substring(next_result_at);
         
-        if (callback && typeof(callback.promise) === 'function') {
+        if (callback.promise) {
+        	this.replies += 1;
             callback.promise.emitSuccess(result_value);
         }
     }
 };
 
 Client.prototype.determine_reply_handler = function (buffer) {
+	crlf_at = buffer.indexOf(crlf);
+	if (crlf_at == -1) {
+		return null;
+	}
     // determine errors
     for (var error_idx in error_replies) {
         var error_indicator = error_replies[error_idx];
@@ -108,14 +141,12 @@ Client.prototype.determine_reply_handler = function (buffer) {
         for (var indicator in reply_indicators[method]) {
             var current_indicator = reply_indicators[method][indicator];
             if (buffer.indexOf(current_indicator) == 0) {
-                sys.debug('calling ' + 'handle_' + method);
                 return this['handle_' + method](buffer);
             }
         }
     }
     
-    // no handler determined yet -> throw an error
-    throw new Error('no handler found for server response');
+    return null;
 };
 
 Client.prototype.handle_get = function(buffer) {
@@ -129,6 +160,7 @@ Client.prototype.handle_get = function(buffer) {
         var first_line_len = buffer.indexOf(crlf) + crlf_len;
         var result_len     = buffer.substr(0, first_line_len).split(' ')[3];
         result_value       = buffer.substr(first_line_len, result_len);
+        
         return [result_value, first_line_len + parseInt(result_len ) + crlf_len + end_indicator_len + crlf_len];
     }
 };
@@ -139,7 +171,6 @@ Client.prototype.handle_delete = function(buffer) {
 };
 
 Client.prototype.handle_error = function(buffer) {
-    sys.debug('handling error');
     line = readLine(buffer);
     
     return [null, (line.length + crlf_len)];
