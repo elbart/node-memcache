@@ -2,7 +2,7 @@ var tcp = require('tcp'),
     sys = require('sys');
     
 var crlf = "\r\n";
-var crlf_len = 2;
+var crlf_len = crlf.length;
 
 var error_replies = ['ERROR', 'NOT_FOUND', 'CLIENT_ERROR', 'SERVER_ERROR'];
 
@@ -47,16 +47,17 @@ Client.prototype.connect = function (callback) {
 	 
 	    this.conn.addListener("receive", function (data) {
 	    	self.buffer += data;
+//	    	sys.debug(':' + data.length);
 	    	self.recieves += 1;
 	    	self.handle_received_data();
 	    });
 	 
-		    this.conn.addListener("eof", function () {
-		    	if (self.conn && self.conn.readyState) {
-		    		self.conn.close();
-		        	self.conn = null;
-		      	}
-		    });
+	    this.conn.addListener("eof", function () {
+	    	if (self.conn && self.conn.readyState) {
+	    		self.conn.close();
+	        	self.conn = null;
+	      	}
+	    });
 	 
 	    this.conn.addListener("close", function () {
 	    	self.conn = null;
@@ -87,8 +88,29 @@ Client.prototype.get = function(key) {
     return this.query('get ' + key, 'get');
 };
 
-Client.prototype.mc_delete = function(key) {
+Client.prototype.set = function(key, value, lifetime) {
+	var exp_time  = lifetime || 0;
+	var value_len = value.length || 0;
+	var query = 'set ' + key + ' 0 ' + exp_time + ' ' + value_len + crlf + value;
+    return this.query(query, 'set');
+};
+
+Client.prototype.del = function(key) {
 	return this.query('delete ' + key, 'delete');
+};
+
+Client.prototype.version = function() {
+	return this.query('version', 'version');
+};
+
+Client.prototype.increment = function(key, value) {
+	value = value || 1;
+	return this.query('incr ' + key + ' ' + value, 'incr');
+};
+
+Client.prototype.decrement = function(key, value) {
+	value = value || 1;
+	return this.query('decr ' + key + ' ' + value, 'decr');
 };
 
 Client.prototype.handle_received_data = function () {
@@ -124,10 +146,16 @@ Client.prototype.handle_received_data = function () {
 };
 
 Client.prototype.determine_reply_handler = function (buffer) {
-	crlf_at = buffer.indexOf(crlf);
+	var crlf_at = buffer.indexOf(crlf);
 	if (crlf_at == -1) {
 		return null;
 	}
+	
+	var first_line = buffer.substr(0, crlf_at);
+	if (parseInt(first_line) == first_line) {
+		return this.handle_integer(buffer, crlf_at);
+	}
+		
     // determine errors
     for (var error_idx in error_replies) {
         var error_indicator = error_replies[error_idx];
@@ -141,6 +169,7 @@ Client.prototype.determine_reply_handler = function (buffer) {
         for (var indicator in reply_indicators[method]) {
             var current_indicator = reply_indicators[method][indicator];
             if (buffer.indexOf(current_indicator) == 0) {
+            	sys.debug('handle_' + method);
                 return this['handle_' + method](buffer);
             }
         }
@@ -168,6 +197,23 @@ Client.prototype.handle_get = function(buffer) {
 Client.prototype.handle_delete = function(buffer) {
     var result_value = 'DELETED';
     return [result_value, result_value.length + crlf_len];
+};
+
+Client.prototype.handle_set = function(buffer) {
+    var result_value = 'STORED';
+    return [result_value, result_value.length + crlf_len];
+};
+
+Client.prototype.handle_version = function(buffer) {
+	var line_len      = buffer.indexOf(crlf);
+	var indicator_len = 'VERSION '.length;
+    var result_value  = buffer.substr(indicator_len, (line_len - indicator_len));
+    return [result_value, line_len + crlf_len];
+};
+
+Client.prototype.handle_integer = function(buffer, line_len) {
+    var result_value  = buffer.substr(0, line_len);
+    return [result_value, line_len + crlf_len];
 };
 
 Client.prototype.handle_error = function(buffer) {

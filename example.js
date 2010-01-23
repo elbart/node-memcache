@@ -32,6 +32,36 @@ var benchmark = function() {
 	mcClient.close();
 };
 
+var setKey = function() {
+	mcClient.set('test', 'hello \r\n node-memcache').addCallback(function(response) {
+		mcClient.get('test').addCallback(function(data) {
+			sys.debug(data);
+			mcClient.close();
+		});
+	});
+};
+
+var version = function() {
+	mcClient.version().addCallback(function(version) {
+		sys.debug(version);
+		mcClient.close();
+	});
+};
+
+var incr = function() {
+	mcClient.increment('x', 2).addCallback(function(new_value) {
+		sys.debug(new_value);
+		mcClient.close();
+	});
+};
+
+var decr = function() {
+	mcClient.decrement('x', 1).addCallback(function(new_value) {
+		sys.debug(new_value);
+		mcClient.close();
+	});
+};
+
 mcClient = new memcache.Client();
-mcClient.connect(onConnect);
+mcClient.connect(setKey);
 
