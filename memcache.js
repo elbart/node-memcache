@@ -45,14 +45,14 @@ Client.prototype.connect = function (callback) {
 	  			callback();
 	    }); 
 	 
-	    this.conn.addListener("receive", function (data) {
+	    this.conn.addListener("data", function (data) {
 	    	self.buffer += data;
 //	    	sys.debug(':' + data.length);
 	    	self.recieves += 1;
 	    	self.handle_received_data();
 	    });
 	 
-	    this.conn.addListener("eof", function () {
+	    this.conn.addListener("end", function () {
 	    	if (self.conn && self.conn.readyState) {
 	    		self.conn.close();
 	        	self.conn = null;
@@ -66,15 +66,12 @@ Client.prototype.connect = function (callback) {
 	}
 };
 
-Client.prototype.query = function(query, type) {
+Client.prototype.query = function(query, type, callback) {
     var self  = this;
     var data = query + crlf;
-    var promise = new process.Promise();
-    this.callbacks.push({type : type, promise: promise});
+    this.callbacks.push({ type: type, fun: callback });
     self.sends += 1;
-    this.conn.send(data);
-    
-    return promise;
+    this.conn.write(data);
 };
 
 Client.prototype.close = function(idx) {
@@ -84,33 +81,39 @@ Client.prototype.close = function(idx) {
 	}
 };
 
-Client.prototype.get = function(key) {
-    return this.query('get ' + key, 'get');
+Client.prototype.get = function(key, callback) {
+    return this.query('get ' + key, 'get', callback);
 };
 
-Client.prototype.set = function(key, value, lifetime) {
+Client.prototype.set = function(key, value, callback, lifetime) {
+    if (typeof(callback) != 'function') {
+        lifetime = callback;
+        callback = null;
+    }
+        
 	var exp_time  = lifetime || 0;
 	var value_len = value.length || 0;
 	var query = 'set ' + key + ' 0 ' + exp_time + ' ' + value_len + crlf + value;
-    return this.query(query, 'set');
+
+    return this.query(query, 'set', callback);
 };
 
-Client.prototype.del = function(key) {
-	return this.query('delete ' + key, 'delete');
+Client.prototype.del = function(key, callback) {
+	return this.query('delete ' + key, 'delete', callback);
 };
 
-Client.prototype.version = function() {
-	return this.query('version', 'version');
+Client.prototype.version = function(callback) {
+	return this.query('version', 'version', callback);
 };
 
-Client.prototype.increment = function(key, value) {
+Client.prototype.increment = function(key, value, callback) {
 	value = value || 1;
-	return this.query('incr ' + key + ' ' + value, 'incr');
+	return this.query('incr ' + key + ' ' + value, 'incr', callback);
 };
 
-Client.prototype.decrement = function(key, value) {
+Client.prototype.decrement = function(key, value, callback) {
 	value = value || 1;
-	return this.query('decr ' + key + ' ' + value, 'decr');
+	return this.query('decr ' + key + ' ' + value, 'decr'. callback);
 };
 
 Client.prototype.handle_received_data = function () {
@@ -133,14 +136,14 @@ Client.prototype.handle_received_data = function () {
         var callback = this.callbacks.shift();
         
         if (result_value === null) {
-            callback.promise.emitError('server replied with error');
+            throw "Error";
         }
         
         this.buffer = this.buffer.substring(next_result_at);
         
-        if (callback.promise) {
+        if (callback.fun) {
         	this.replies += 1;
-            callback.promise.emitSuccess(result_value);
+            callback.fun(result_value);
         }
     }
 };
@@ -169,7 +172,6 @@ Client.prototype.determine_reply_handler = function (buffer) {
         for (var indicator in reply_indicators[method]) {
             var current_indicator = reply_indicators[method][indicator];
             if (buffer.indexOf(current_indicator) == 0) {
-            	sys.debug('handle_' + method);
                 return this['handle_' + method](buffer);
             }
         }
@@ -226,3 +228,4 @@ readLine = function(string) {
     var line_len = string.indexOf(crlf);
     return string.substr(0, line_len);
 };
+
