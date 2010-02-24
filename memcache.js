@@ -113,7 +113,7 @@ Client.prototype.increment = function(key, value, callback) {
 
 Client.prototype.decrement = function(key, value, callback) {
 	value = value || 1;
-	return this.query('decr ' + key + ' ' + value, 'decr'. callback);
+	return this.query('decr ' + key + ' ' + value, 'decr', callback);
 };
 
 Client.prototype.handle_received_data = function () {
