@@ -63,5 +63,6 @@ var decr = function() {
 };
 
 mcClient = new memcache.Client();
-mcClient.connect(incr);
+mcClient.connect();
+mcClient.addHandler(onConnect);
 

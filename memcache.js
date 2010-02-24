@@ -23,31 +23,25 @@ var Client = exports.Client = function(port, host) {
     this.receives = 0;
     this.callbacks = [];
     this.replies = 0;
+    this.handles = [];
 };
 
 sys.inherits(Client, process.EventEmitter);
 
-Client.prototype.connect = function (callback) {
+Client.prototype.connect = function () {
 	if (!this.conn) {
 	    this.conn = new tcp.createConnection(this.port, this.host);
-    }
-	
-	if (this.conn.readyState === "open" && typeof(callback) === 'function') {
-		callback();
-	} else {
 		var self = this;
-	 
 	    this.conn.addListener("connect", function () {
 	        this.setTimeout(0);          // try to stay connected.
 	        this.setNoDelay();
 		  	self.emit("connect");
-	  		if (typeof(callback) === 'function')
-	  			callback();
+	  		self.dispatchHandles();
 	    }); 
 	 
 	    this.conn.addListener("data", function (data) {
 	    	self.buffer += data;
-//	    	sys.debug(':' + data.length);
+            // sys.debug(data);
 	    	self.recieves += 1;
 	    	self.handle_received_data();
 	    });
@@ -63,7 +57,22 @@ Client.prototype.connect = function (callback) {
 	    	self.conn = null;
 	      	self.emit("close");
 	    });
-	}
+    }
+};
+
+Client.prototype.addHandler = function(callback) {
+    this.handles.push(callback);
+    
+    if (this.conn.readyState == 'open') {
+        this.dispatchHandles();
+    }
+};
+
+Client.prototype.dispatchHandles = function() {
+    for (var i in this.handles) {
+        var handle = this.handles.shift();
+        handle();
+    }
 };
 
 Client.prototype.query = function(query, type, callback) {
@@ -140,7 +149,6 @@ Client.prototype.handle_received_data = function () {
         }
         
         this.buffer = this.buffer.substring(next_result_at);
-        
         if (callback.fun) {
         	this.replies += 1;
             callback.fun(result_value);
