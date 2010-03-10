@@ -71,6 +71,7 @@ Client.prototype.addHandler = function(callback) {
 Client.prototype.dispatchHandles = function() {
     for (var i in this.handles) {
         var handle = this.handles.shift();
+        // sys.debug('dispatching handle ' + handle);
         handle();
     }
 };
