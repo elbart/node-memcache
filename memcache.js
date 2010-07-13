@@ -144,13 +144,11 @@ Client.prototype.handle_received_data = function () {
         }
         
         var callback = this.callbacks.shift();
-        
-        if (result_value === null) {
-            throw "Error";
-        }
+
+        // fix from http://github.com/kschzt/node-memcache
         
         this.buffer = this.buffer.substring(next_result_at);
-        if (callback.fun) {
+        if (callback != null && callback.fun != null) {
         	this.replies += 1;
             callback.fun(result_value);
         }
