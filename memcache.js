@@ -48,7 +48,7 @@ Client.prototype.connect = function () {
 	 
 	    this.conn.addListener("end", function () {
 	    	if (self.conn && self.conn.readyState) {
-	    		self.conn.close();
+	    		self.conn.end();
 	        	self.conn = null;
 	      	}
 	    });
@@ -143,10 +143,13 @@ Client.prototype.handle_received_data = function () {
         	break;
         }
         
+		if (result_value == null)
+			throw new Error("Null result value");
+
         var callback = this.callbacks.shift();
         
         this.buffer = this.buffer.substring(next_result_at);
-        if (callback != null && callback.fun != null) {
+        if (callback.fun) {
         	this.replies += 1;
             callback.fun(result_value);
         }
