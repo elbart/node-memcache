@@ -1,4 +1,4 @@
-var tcp = require('tcp'),
+var net = require('net'),
     sys = require('sys');
     
 var crlf = "\r\n";
@@ -30,7 +30,7 @@ sys.inherits(Client, process.EventEmitter);
 
 Client.prototype.connect = function () {
 	if (!this.conn) {
-	    this.conn = new tcp.createConnection(this.port, this.host);
+	    this.conn = new net.createConnection(this.port, this.host);
 		var self = this;
 	    this.conn.addListener("connect", function () {
 	        this.setTimeout(0);          // try to stay connected.
@@ -48,7 +48,7 @@ Client.prototype.connect = function () {
 	 
 	    this.conn.addListener("end", function () {
 	    	if (self.conn && self.conn.readyState) {
-	    		self.conn.close();
+	    		self.conn.end();
 	        	self.conn = null;
 	      	}
 	    });
@@ -86,7 +86,7 @@ Client.prototype.query = function(query, type, callback) {
 
 Client.prototype.close = function(idx) {
 	if (this.conn && this.conn.readyState === "open") {
-		this.conn.close();
+		this.conn.end();
 	    this.conn = null;
 	}
 };
