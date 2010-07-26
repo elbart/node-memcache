@@ -86,7 +86,7 @@ Client.prototype.query = function(query, type, callback) {
 
 Client.prototype.close = function(idx) {
 	if (this.conn && this.conn.readyState === "open") {
-		this.conn.close();
+		this.conn.end();
 	    this.conn = null;
 	}
 };
@@ -143,13 +143,10 @@ Client.prototype.handle_received_data = function () {
         	break;
         }
         
-		if (result_value == null)
-			throw new Error("Null result value");
-
         var callback = this.callbacks.shift();
         
         this.buffer = this.buffer.substring(next_result_at);
-        if (callback.fun) {
+        if (callback != null && callback.fun) {
         	this.replies += 1;
             callback.fun(result_value);
         }
@@ -190,7 +187,7 @@ Client.prototype.determine_reply_handler = function (buffer) {
 
 Client.prototype.handle_get = function(buffer) {
     var next_result_at = 0;
-    var result_value = '';
+    var result_value = null;
     var end_indicator_len = 3;
     
     if (buffer.indexOf('END') == 0) {
