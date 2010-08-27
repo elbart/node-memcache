@@ -4,6 +4,12 @@ node.js memcached client
 A pure-JavaScript Memcache library for node.
 
 
+Tests
+-----
+
+To run the test suite, first insall <a href="http://github.com/visionmedia/expresso">expresso</a>, then run <code>make test</code>
+
+
 Usage
 -----
 
