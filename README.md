@@ -43,20 +43,22 @@ The Client object emits 4 important events - connect, close, timeout and error.
 
 After connecting, you can start to make requests.
 
-	client.get('key', function(response){
-		
+	client.get('key', function(result, error){
+
+		// all of the callbacks have two arguments.
+		// 'result' may contain things which aren't great, but
+		// aren't really errors, like 'NOT_STORED'
+
 	});
 
-	client.set('key', 'value', function(response){
+	client.set('key', 'value', function(success, error){
 
-		// response will be 'STORED' if it worked,
-		// else an error (huh?)
-
-		// lifetime argument is optional
+		// lifetime is optional. the default is
+		// to never expire (0)
 
 	}, lifetime);
 
-	client.del('key', function(response){
+	client.del('key', function(success, error){
 
 		// delete a key from cache.
 		// response?
@@ -67,10 +69,20 @@ After connecting, you can start to make requests.
 		// response contains server version?
 	});
 
-	client.increment('key', value, function(response){
-	});
-	client.decrement('key', value, function(response){
-	});
+
+	// all of the different "store" operations
+	// (lifetime & flags are both optional)
+	client.set(key, value, callback, lifetime, flags);
+	client.add(key, value, callback, lifetime, flags);
+	client.replace(key, value, callback, lifetime, flags);
+	client.append(key, value, callback, lifetime, flags);
+	client.prepend(key, value, callback, lifetime, flags);
+	client.cas(key, value, unique, callback, lifetime, flags);
+
+	// increment and decrement
+	// (value is optional, defaults to 1)
+	client.increment('key', value, callback);
+	client.decrement('key', value, callback);
 
 Once you're done, close the connection.
 
