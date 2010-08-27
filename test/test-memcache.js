@@ -89,4 +89,26 @@ mc.addHandler(function() {
 			assert.equal(3, n);
 		});
 	};
+
+
+	// test connecting and disconnecting
+	exports['con disco'] = function(assert, beforeExit) {
+
+		var n = 0;
+
+		var mc2 = new memcache.Client();
+		mc2.on('connect', function(){
+			n++;
+			mc2.close();
+		});
+		mc2.on('close', function(){
+			n++;
+		});
+
+		mc2.connect();
+
+		beforeExit(function() {
+			assert.equal(2, n);
+		});
+	}
 });
