@@ -1,5 +1,5 @@
 var sys      = require('sys');
-var memcache = require('./memcache');
+var memcache = require('./lib/memcache');
 
 function microtime(get_as_float) {  
     var now = new Date().getTime() / 1000;  
