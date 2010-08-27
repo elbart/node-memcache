@@ -120,21 +120,25 @@ mc.addHandler(function() {
 		mc.set('inc_bad', 'HELLO', function(response){
 			assert.equal(response, 'STORED');
 			n++;
-			mc.increment('inc_bad', 2, function(response){
+			mc.increment('inc_bad', 2, function(ok, err){
 				n++;
-				assert.equal(response, null);
+				assert.equal(ok, null);
+				assert.equal(err.substr(0, 12), 'CLIENT_ERROR');
 			});
-			mc.decrement('inc_bad', 3, function(response){
+			mc.decrement('inc_bad', 3, function(ok, err){
 				n++;
-				assert.equal(response, null);
+				assert.equal(ok, null);
+				assert.equal(err.substr(0, 12), 'CLIENT_ERROR');
 			});
-			mc.increment('inc_bad', null, function(response){
+			mc.increment('inc_bad', null, function(ok, err){
 				n++;
-				assert.equal(response, null);
+				assert.equal(ok, null);
+				assert.equal(err.substr(0, 12), 'CLIENT_ERROR');
 			});
-			mc.decrement('inc_bad', null, function(response){
+			mc.decrement('inc_bad', null, function(ok, err){
 				n++;
-				assert.equal(response, null);
+				assert.equal(ok, null);
+				assert.equal(err.substr(0, 12), 'CLIENT_ERROR');
 			});
 		});
 
