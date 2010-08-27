@@ -110,5 +110,58 @@ mc.addHandler(function() {
 		beforeExit(function() {
 			assert.equal(2, n);
 		});
-	}
+	};
+
+	// increment / decrement
+	exports['inc dec'] = function(assert, beforeExit){
+
+		var n = 0;
+
+		mc.set('inc_bad', 'HELLO', function(response){
+			assert.equal(response, 'STORED');
+			n++;
+			mc.increment('inc_bad', 2, function(response){
+				n++;
+				assert.equal(response, null);
+			});
+			mc.decrement('inc_bad', 3, function(response){
+				n++;
+				assert.equal(response, null);
+			});
+			mc.increment('inc_bad', null, function(response){
+				n++;
+				assert.equal(response, null);
+			});
+			mc.decrement('inc_bad', null, function(response){
+				n++;
+				assert.equal(response, null);
+			});
+		});
+
+		mc.set('inc_good', '5', function(response){
+			assert.equal(response, 'STORED');
+			n++;
+			mc.increment('inc_good', 2, function(response){
+				n++;
+				assert.equal(response, 7);
+				mc.increment('inc_good', function(response){
+					n++;
+					assert.equal(response, 8);
+					mc.decrement('inc_good', function(response){
+						n++;
+						assert.equal(response, 7);
+						mc.decrement('inc_good', 4, function(response){
+							n++;
+							assert.equal(response, 3);
+						});
+					});
+				});
+			});
+		});
+
+		beforeExit(function(){
+			assert.equal(10, n);
+		});
+
+	};
 });
