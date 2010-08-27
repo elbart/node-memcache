@@ -57,6 +57,16 @@ Client.prototype.connect = function () {
 	    	self.conn = null;
 	      	self.emit("close");
 	    });
+
+            this.conn.addListener("timeout", function () {
+                self.conn = null;
+                self.emit("timeout");
+            });
+
+            this.conn.addListener("error", function (ex) {
+                self.conn = null;
+                self.emit("error", ex);
+            });
     }
 };
 
