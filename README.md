@@ -7,7 +7,7 @@ A pure-JavaScript Memcache library for node.
 Tests
 -----
 
-To run the test suite, first insall <a href="http://github.com/visionmedia/expresso">expresso</a>, then run <code>make test</code>
+To run the test suite, first insall <a href="http://github.com/visionmedia/expresso">expresso</a>, then run <code>make test</code>.
 
 
 Usage
@@ -64,9 +64,9 @@ After connecting, you can start to make requests.
 		// response?
 	});
 
-	client.version(function(response)){
+	client.version(function(version, error)){
 
-		// response contains server version?
+		// grab the server version
 	});
 
 
