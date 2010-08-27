@@ -3,7 +3,7 @@ tests for expresso
 */
 
 var sys      = require('sys');
-var memcache = require('../memcache');
+var memcache = require('memcache');
 
 mc = new memcache.Client();
 mc.connect();
