@@ -123,22 +123,22 @@ mc.addHandler(function() {
 			mc.increment('inc_bad', 2, function(ok, err){
 				n++;
 				assert.equal(ok, null);
-				assert.equal(err.substr(0, 12), 'CLIENT_ERROR');
+				assert.match(err, /^CLIENT_ERROR/);
 			});
 			mc.decrement('inc_bad', 3, function(ok, err){
 				n++;
 				assert.equal(ok, null);
-				assert.equal(err.substr(0, 12), 'CLIENT_ERROR');
+				assert.match(err, /^CLIENT_ERROR/);
 			});
 			mc.increment('inc_bad', null, function(ok, err){
 				n++;
 				assert.equal(ok, null);
-				assert.equal(err.substr(0, 12), 'CLIENT_ERROR');
+				assert.match(err, /^CLIENT_ERROR/);
 			});
 			mc.decrement('inc_bad', null, function(ok, err){
 				n++;
 				assert.equal(ok, null);
-				assert.equal(err.substr(0, 12), 'CLIENT_ERROR');
+				assert.match(err, /^CLIENT_ERROR/);
 			});
 		});
 
@@ -168,4 +168,15 @@ mc.addHandler(function() {
 		});
 
 	};
+
+	exports['version'] = function(assert, beforeExit){
+
+		mc.version(function(success, error){
+
+			assert.equal(error, null);
+			assert.length(success, 5);
+		});
+
+	}
+
 });
