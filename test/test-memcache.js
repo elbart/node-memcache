@@ -6,9 +6,25 @@ var sys      = require('sys');
 var memcache = require('memcache');
 
 mc = new memcache.Client();
+mc.on('error', function(e){
+
+	if (e.errno == 111){
+		exports['startup test'] = function(assert){
+
+			assert.ok(false, "You need to have a memcache server running on localhost:11211 for these tests to run");
+		}
+		return;
+	}
+
+	exports['startup test'] = function(assert){
+		assert.ok(false, "Unexpected error during connection: "+sys.inspect(e));
+	}
+});
 mc.connect();
 
+
 mc.addHandler(function() {
+
 	// test nonexistent key is null
 	exports['test null value'] = function(assert, beforeExit) {
 		var n = 0;
