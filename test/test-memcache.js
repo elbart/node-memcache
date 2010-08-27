@@ -75,7 +75,7 @@ mc.addHandler(function() {
 				assert.equal('asdf2', r);
 				n++;
 				// delete key
-				mc.del('set2', function() {
+				mc.delete('set2', function() {
 					mc.get('set2', function(r) {
 						// assert key is null
 						assert.equal(null, r);
