@@ -84,6 +84,13 @@ After connecting, you can start to make requests.
 	client.increment('key', value, callback);
 	client.decrement('key', value, callback);
 
+	// statistics. the success argument to the callback
+	// is a key=>value object
+	client.stats(callback);
+	client.stats('settings', callback);
+	client.stats('items', callback);
+	client.stats('mongeese', callback);
+
 Once you're done, close the connection.
 
 	client.close();

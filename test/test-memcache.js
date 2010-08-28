@@ -170,13 +170,50 @@ mc.addHandler(function() {
 	};
 
 	exports['version'] = function(assert, beforeExit){
+		var n = 0;
 
 		mc.version(function(success, error){
-
+			n++;
 			assert.equal(error, null);
 			assert.length(success, 5);
 		});
 
-	}
+		beforeExit(function(){
+			assert.equal(1, n);
+		});
+	};
+
+	exports['stats'] = function(assert, beforeExit){
+		var n = 0;
+
+		mc.stats(function(success, error){
+			n++;
+			assert.ok(success.pid, "server has a pid");
+		});
+
+		mc.stats('settings', function(success, error){
+			n++;
+			assert.ok(success.maxconns);
+		});
+
+		mc.stats('items', function(success, error){ n++; assert.ok(num_keys(success)); });
+		mc.stats('sizes', function(success, error){ n++; assert.ok(num_keys(success)); });
+		mc.stats('slabs', function(success, error){ n++; assert.ok(num_keys(success)); });
+
+		mc.stats('notreal', function(success, error){
+			n++;
+			assert.equal(error, 'ERROR');
+		});
+
+		beforeExit(function(){
+			assert.equal(6, n);
+		});
+	};
 
 });
+
+function num_keys(a){
+	var i=0;
+	for (var k in a) i++;
+	return i;
+}
