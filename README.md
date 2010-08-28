@@ -1,13 +1,17 @@
 node.js memcached client
 ========================
 
-A pure-JavaScript Memcache library for node.
+A pure-JavaScript Memcached library for node.
 
 
 Tests
 -----
 
-To run the test suite, first insall <a href="http://github.com/visionmedia/expresso">expresso</a>, then run <code>make test</code>.
+To run the test suite, first insall <a href="http://github.com/visionmedia/expresso">expresso</a>,
+then run <code>make test</code>.
+
+If you have <a href="http://github.com/visionmedia/node-jscoverage">node-jscoverage</a> you can
+also <code>make test-cov</code> for coverage, but that's pretty nerdy.
 
 
 Usage
@@ -70,6 +74,8 @@ After connecting, you can start to make requests.
 	});
 
 
+There are all the commands you would expect.
+
 	// all of the different "store" operations
 	// (lifetime & flags are both optional)
 	client.set(key, value, callback, lifetime, flags);
@@ -79,7 +85,7 @@ After connecting, you can start to make requests.
 	client.prepend(key, value, callback, lifetime, flags);
 	client.cas(key, value, unique, callback, lifetime, flags);
 
-	// increment and decrement
+	// increment and decrement (named differently to the server commands - for now!)
 	// (value is optional, defaults to 1)
 	client.increment('key', value, callback);
 	client.decrement('key', value, callback);
@@ -95,4 +101,4 @@ Once you're done, close the connection.
 
 	client.close();
 
-	
+There might be bugs. I'd like to know about them.
