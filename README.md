@@ -55,20 +55,19 @@ After connecting, you can start to make requests.
 
 	});
 
-	client.set('key', 'value', function(success, error){
+	client.set('key', 'value', function(result, error){
 
 		// lifetime is optional. the default is
 		// to never expire (0)
 
 	}, lifetime);
 
-	client.del('key', function(success, error){
+	client.delete('key', function(result, error){
 
 		// delete a key from cache.
-		// response?
 	});
 
-	client.version(function(version, error)){
+	client.version(function(result, error)){
 
 		// grab the server version
 	});
@@ -102,3 +101,6 @@ Once you're done, close the connection.
 	client.close();
 
 There might be bugs. I'd like to know about them.
+
+I bet you also want to read the <a href="http://github.com/memcached/memcached/blob/master/doc/protocol.txt">Memcached 
+protocol doc</a>. It's exciting! It also explains possible error messages.
