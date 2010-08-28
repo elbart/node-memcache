@@ -1,7 +1,7 @@
 node.js memcached client
 ========================
 
-A pure-JavaScript Memcached library for node.
+A pure-JavaScript memcached library for node.
 
 
 Tests
@@ -102,5 +102,5 @@ Once you're done, close the connection.
 
 There might be bugs. I'd like to know about them.
 
-I bet you also want to read the <a href="http://github.com/memcached/memcached/blob/master/doc/protocol.txt">Memcached 
+I bet you also want to read the <a href="http://github.com/memcached/memcached/blob/master/doc/protocol.txt">memcached 
 protocol doc</a>. It's exciting! It also explains possible error messages.
