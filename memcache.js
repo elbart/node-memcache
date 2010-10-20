@@ -11,7 +11,8 @@ var reply_indicators = {
     'set' : ['STORED', 'NOT_STORED', 'EXISTS'],
     'stats' : ['STATS'],
     'delete' : ['DELETED'],
-    'version' : ['VERSION']
+    'version' : ['VERSION'],
+    'flush_all' : ['OK']
 };
 
 var Client = exports.Client = function(port, host) {
@@ -41,7 +42,6 @@ Client.prototype.connect = function () {
 	 
 	    this.conn.addListener("data", function (data) {
 	    	self.buffer += data;
-            // sys.debug(data);
 	    	self.recieves += 1;
 	    	self.handle_received_data();
 	    });
@@ -71,7 +71,6 @@ Client.prototype.addHandler = function(callback) {
 Client.prototype.dispatchHandles = function() {
     for (var i in this.handles) {
         var handle = this.handles.shift();
-        // sys.debug('dispatching handle ' + handle);
         handle();
     }
 };
@@ -107,6 +106,11 @@ Client.prototype.set = function(key, value, callback, lifetime) {
 
     return this.query(query, 'set', callback);
 };
+
+Client.prototype.flush_all = function(callback) {
+	return this.query('flush_all', 'flush_all', callback);
+};
+
 
 Client.prototype.del = function(key, callback) {
 	return this.query('delete ' + key, 'delete', callback);
@@ -183,7 +187,6 @@ Client.prototype.determine_reply_handler = function (buffer) {
             }
         }
     }
-    
     return null;
 };
 
@@ -201,6 +204,11 @@ Client.prototype.handle_get = function(buffer) {
         
         return [result_value, first_line_len + parseInt(result_len ) + crlf_len + end_indicator_len + crlf_len];
     }
+};
+
+Client.prototype.handle_flush_all = function(buffer) {
+    var result_value = 'OK';
+    return [result_value, result_value.length + crlf_len];
 };
 
 Client.prototype.handle_delete = function(buffer) {
