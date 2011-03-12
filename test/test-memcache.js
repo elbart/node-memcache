@@ -91,6 +91,15 @@ mc.addHandler(function() {
 		});
 	};
 
+    // test utf8 handling
+    exports['utf8'] = function(beforeExit) {
+        mc.set('key1', 'привет', function() {
+            mc.get('key1', function(r) {
+                assert.equal('привет', r);
+            });
+        });
+    };
+
 
 	// test connecting and disconnecting
 	exports['con disco'] = function(beforeExit) {
