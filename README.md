@@ -25,7 +25,7 @@ They have sensible defaults.
 
 	var client = new memcache.Client(port, host);
 	client.port = 11211;
-	client.host = 'loalhost';
+	client.host = 'localhost';
 
 The Client object emits 4 important events - connect, close, timeout and error.
 
@@ -41,7 +41,7 @@ The Client object emits 4 important events - connect, close, timeout and error.
 		// no arguments - socket timed out
 	});
 
-	client.on('error' function(e){
+	client.on('error', function(e){
 		// there was an error - exception is 1st argument
 	});
 
