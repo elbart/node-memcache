@@ -2,21 +2,22 @@
 tests for expresso
 */
 
-var sys      = require('sys');
-var memcache = require('memcache');
+var sys = require('sys'),
+    memcache = require('memcache'),
+    assert = require('assert');
 
 mc = new memcache.Client();
 mc.on('error', function(e){
 
 	if (e.errno == 111){
-		exports['startup test'] = function(assert){
+		exports['startup test'] = function(){
 
 			assert.ok(false, "You need to have a memcache server running on localhost:11211 for these tests to run");
 		}
 		return;
 	}
 
-	exports['startup test'] = function(assert){
+	exports['startup test'] = function(){
 		assert.ok(false, "Unexpected error during connection: "+sys.inspect(e));
 	}
 });
@@ -26,7 +27,7 @@ mc.connect();
 mc.addHandler(function() {
 
 	// test nonexistent key is null
-	exports['test null value'] = function(assert, beforeExit) {
+	exports['test null value'] = function(beforeExit) {
 		var n = 0;
 		mc.get('no such key', function(r) {
 			assert.equal(null, r);
@@ -39,7 +40,7 @@ mc.addHandler(function() {
 	};
 	
 	// test set, get and expires
-	exports['test set, get, and expires'] = function(assert, beforeExit) {
+	exports['test set, get, and expires'] = function(beforeExit) {
 		var n = 0;
 		// set key
 		mc.set('set1', 'asdf1', function() {
@@ -65,7 +66,7 @@ mc.addHandler(function() {
 	};
 
 	// test set and delete
-	exports['test set del'] = function(assert, beforeExit) {
+	exports['test set del'] = function(beforeExit) {
 		var n = 0;
 		// set key
 		mc.set('set2', 'asdf2', function() {
@@ -92,7 +93,7 @@ mc.addHandler(function() {
 
 
 	// test connecting and disconnecting
-	exports['con disco'] = function(assert, beforeExit) {
+	exports['con disco'] = function(beforeExit) {
 
 		var n = 0;
 
@@ -113,7 +114,7 @@ mc.addHandler(function() {
 	};
 
 	// increment / decrement
-	exports['inc dec'] = function(assert, beforeExit){
+	exports['inc dec'] = function(beforeExit){
 
 		var n = 0;
 
@@ -169,7 +170,7 @@ mc.addHandler(function() {
 
 	};
 
-	exports['version'] = function(assert, beforeExit){
+	exports['version'] = function(beforeExit){
 		var n = 0;
 
 		mc.version(function(success, error){
@@ -183,7 +184,7 @@ mc.addHandler(function() {
 		});
 	};
 
-	exports['stats'] = function(assert, beforeExit){
+	exports['stats'] = function(beforeExit){
 		var n = 0;
 
 		mc.stats(function(success, error){
