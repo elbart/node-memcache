@@ -6,7 +6,7 @@ var sys = require('sys'),
     memcache = require('memcache'),
     assert = require('assert');
 
-mc = new memcache.Client(11222);
+mc = new memcache.Client();
 mc.on('error', function(e){
 
 	if (e.errno == 111){
@@ -114,7 +114,7 @@ mc.addHandler(function() {
 
 		var n = 0;
 
-		var mc2 = new memcache.Client(11222);
+		var mc2 = new memcache.Client();
 		mc2.on('connect', function(){
 			n++;
 			mc2.close();
