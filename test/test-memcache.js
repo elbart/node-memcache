@@ -6,7 +6,7 @@ var sys = require('sys'),
     memcache = require('memcache'),
     assert = require('assert');
 
-mc = new memcache.Client();
+mc = new memcache.Client(11222);
 mc.on('error', function(e){
 
 	if (e.errno == 111){
@@ -65,6 +65,14 @@ mc.addHandler(function() {
 		});
 	};
 
+    exports['test set get with integer value'] = function(beforeExit) {
+        mc.set('testKey', 123, function() {
+            mc.get('testKey', function(r) {
+                assert.equal(123,r);
+            });
+        });
+    };
+
 	// test set and delete
 	exports['test set del'] = function(beforeExit) {
 		var n = 0;
@@ -106,7 +114,7 @@ mc.addHandler(function() {
 
 		var n = 0;
 
-		var mc2 = new memcache.Client();
+		var mc2 = new memcache.Client(11222);
 		mc2.on('connect', function(){
 			n++;
 			mc2.close();
