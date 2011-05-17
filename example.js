@@ -8,7 +8,7 @@ function microtime(get_as_float) {
 }
 
 var onConnect = function() {
-	mcClient.get('test', function(data) {
+	mcClient.get('test', function(err, data) {
 		sys.debug(data);
 		mcClient.close();
 	});
@@ -20,8 +20,8 @@ var benchmark = function() {
 	var x = 0;
 	
 	for (var i=0; i<=count; i++) {
-		mcClient.get('test', function(data) {
-			x += 1;		
+		mcClient.get('test', function(err, data) {
+			x += 1;
 			if (x == count) {
 				end = microtime(true);
 				sys.debug('total time: ' + (end - start));
@@ -33,8 +33,8 @@ var benchmark = function() {
 };
 
 var setKey = function() {
-	mcClient.set('test', 'hello \r\n node-memcache', function(response) {
-		mcClient.get('test', function(data) {
+	mcClient.set('test', 'hello \r\n node-memcache', function(err, response) {
+		mcClient.get('test', function(err, data) {
 			sys.debug(data);
 			mcClient.close();
 		});
@@ -42,21 +42,21 @@ var setKey = function() {
 };
 
 var version = function() {
-	mcClient.version(function(version) {
+	mcClient.version(function(err, version) {
 		sys.debug(version);
 		mcClient.close();
 	});
 };
 
 var incr = function() {
-	mcClient.increment('x', 2, function(new_value) {
+	mcClient.increment('x', 2, function(err, new_value) {
 		sys.debug(new_value);
 		mcClient.close();
 	});
 };
 
 var decr = function() {
-	mcClient.decrement('x', 1, function(new_value) {
+	mcClient.decrement('x', 1, function(err, new_value) {
 		sys.debug(new_value);
 		mcClient.close();
 	});
