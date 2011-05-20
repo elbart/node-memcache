@@ -4,9 +4,10 @@ tests for expresso
 
 var sys = require('sys'),
     memcache = require('memcache'),
-    assert = require('assert');
+    assert = require('assert'),
+    port = 11211;
 
-mc = new memcache.Client();
+mc = new memcache.Client(port);
 mc.on('error', function(e){
 
 	if (e.errno == 111){
@@ -114,7 +115,7 @@ mc.addHandler(function() {
 
 		var n = 0;
 
-		var mc2 = new memcache.Client();
+		var mc2 = new memcache.Client(port);
 		mc2.on('connect', function(){
 			n++;
 			mc2.close();
