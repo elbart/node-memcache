@@ -30,7 +30,7 @@ mc.addHandler(function() {
 	// test nonexistent key is null
 	exports['test null value'] = function(beforeExit) {
 		var n = 0;
-		mc.get('no such key', function(r) {
+		mc.get('no such key', function(err, r) {
 			assert.equal(null, r);
 			n++;
 		});
@@ -46,7 +46,7 @@ mc.addHandler(function() {
 		// set key
 		mc.set('set1', 'asdf1', function() {
 			n++;
-			mc.get('set1', function(r) {
+			mc.get('set1', function(err, r) {
 				// assert key is found
 				assert.equal('asdf1', r);
 				n++;
@@ -68,7 +68,7 @@ mc.addHandler(function() {
 
     exports['test set get with integer value'] = function(beforeExit) {
         mc.set('testKey', 123, function() {
-            mc.get('testKey', function(r) {
+            mc.get('testKey', function(err, r) {
                 assert.equal(123,r);
             });
         });
@@ -80,13 +80,13 @@ mc.addHandler(function() {
 		// set key
 		mc.set('set2', 'asdf2', function() {
 			n++;
-			mc.get('set2', function(r) {
+			mc.get('set2', function(err, r) {
 				// assert key is found
 				assert.equal('asdf2', r);
 				n++;
 				// delete key
 				mc.delete('set2', function() {
-					mc.get('set2', function(r) {
+					mc.get('set2', function(err, r) {
 						// assert key is null
 						assert.equal(null, r);
 						n++;
@@ -103,7 +103,7 @@ mc.addHandler(function() {
     // test utf8 handling
     exports['utf8'] = function(beforeExit) {
         mc.set('key1', 'привет', function() {
-            mc.get('key1', function(r) {
+            mc.get('key1', function(err, r) {
                 assert.equal('привет', r);
             });
         });
@@ -136,44 +136,44 @@ mc.addHandler(function() {
 
 		var n = 0;
 
-		mc.set('inc_bad', 'HELLO', function(response){
+		mc.set('inc_bad', 'HELLO', function(err, response){
 			assert.equal(response, 'STORED');
 			n++;
-			mc.increment('inc_bad', 2, function(ok, err){
+			mc.increment('inc_bad', 2, function(err, ok){
 				n++;
-				assert.equal(ok, null);
 				assert.match(err, /^CLIENT_ERROR/);
+				assert.equal(ok, null);
 			});
-			mc.decrement('inc_bad', 3, function(ok, err){
+			mc.decrement('inc_bad', 3, function(err, ok){
 				n++;
-				assert.equal(ok, null);
 				assert.match(err, /^CLIENT_ERROR/);
+				assert.equal(ok, null);
 			});
-			mc.increment('inc_bad', null, function(ok, err){
+			mc.increment('inc_bad', null, function(err, ok){
 				n++;
-				assert.equal(ok, null);
 				assert.match(err, /^CLIENT_ERROR/);
+				assert.equal(ok, null);
 			});
-			mc.decrement('inc_bad', null, function(ok, err){
+			mc.decrement('inc_bad', null, function(err, ok){
 				n++;
-				assert.equal(ok, null);
 				assert.match(err, /^CLIENT_ERROR/);
+				assert.equal(ok, null);
 			});
 		});
 
-		mc.set('inc_good', '5', function(response){
+		mc.set('inc_good', '5', function(err, response){
 			assert.equal(response, 'STORED');
 			n++;
-			mc.increment('inc_good', 2, function(response){
+			mc.increment('inc_good', 2, function(err, response){
 				n++;
 				assert.equal(response, 7);
-				mc.increment('inc_good', function(response){
+				mc.increment('inc_good', function(err, response){
 					n++;
 					assert.equal(response, 8);
-					mc.decrement('inc_good', function(response){
+					mc.decrement('inc_good', function(err, response){
 						n++;
 						assert.equal(response, 7);
-						mc.decrement('inc_good', 4, function(response){
+						mc.decrement('inc_good', 4, function(err, response){
 							n++;
 							assert.equal(response, 3);
 						});
@@ -191,7 +191,7 @@ mc.addHandler(function() {
 	exports['version'] = function(beforeExit){
 		var n = 0;
 
-		mc.version(function(success, error){
+		mc.version(function(error, success){
 			n++;
 			assert.equal(error, null);
 			assert.length(success, 5);
@@ -205,21 +205,21 @@ mc.addHandler(function() {
 	exports['stats'] = function(beforeExit){
 		var n = 0;
 
-		mc.stats(function(success, error){
+		mc.stats(function(error, success){
 			n++;
 			assert.ok(success.pid, "server has a pid");
 		});
 
-		mc.stats('settings', function(success, error){
+		mc.stats('settings', function(error, success){
 			n++;
 			assert.ok(success.maxconns);
 		});
 
-		mc.stats('items', function(success, error){ n++; assert.ok(num_keys(success)); });
-		mc.stats('sizes', function(success, error){ n++; assert.ok(num_keys(success)); });
-		mc.stats('slabs', function(success, error){ n++; assert.ok(num_keys(success)); });
+		mc.stats('items', function(error, success){ n++; assert.ok(num_keys(success)); });
+		mc.stats('sizes', function(error, success){ n++; assert.ok(num_keys(success)); });
+		mc.stats('slabs', function(error, success){ n++; assert.ok(num_keys(success)); });
 
-		mc.stats('notreal', function(success, error){
+		mc.stats('notreal', function(error, success){
 			n++;
 			assert.equal(error, 'ERROR');
 		});
