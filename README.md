@@ -47,7 +47,7 @@ The Client object emits 4 important events - connect, close, timeout and error.
 
 After connecting, you can start to make requests.
 
-	client.get('key', function(result, error){
+	client.get('key', function(error, result){
 
 		// all of the callbacks have two arguments.
 		// 'result' may contain things which aren't great, but
@@ -55,19 +55,19 @@ After connecting, you can start to make requests.
 
 	});
 
-	client.set('key', 'value', function(result, error){
+	client.set('key', 'value', function(error, result){
 
 		// lifetime is optional. the default is
 		// to never expire (0)
 
 	}, lifetime);
 
-	client.delete('key', function(result, error){
+	client.delete('key', function(error, result){
 
 		// delete a key from cache.
 	});
 
-	client.version(function(result, error)){
+	client.version(function(error, result)){
 
 		// grab the server version
 	});
