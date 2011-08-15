@@ -3,6 +3,9 @@ node.js memcached client
 
 A pure-JavaScript memcached library for node.
 
+Note: this library is a derivative work of the parent project to support binary values stored in memcache (the original would mangle them with utf8 conversions).  It has 2 significant behavoral changes.
+* get returns a Buffer object instead of a String object
+* all errors return proper Javascript Error objects instead of strings
 
 Tests
 -----
