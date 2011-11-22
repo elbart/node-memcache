@@ -26,9 +26,6 @@ They have sensible defaults.
 	var client = new memcache.Client(port, host);
 	client.port = 11211;
 	client.host = 'localhost';
-	
-	// connect to the memcache server
-	client.connect()
 
 The Client object emits 4 important events - connect, close, timeout and error.
 
@@ -47,6 +44,9 @@ The Client object emits 4 important events - connect, close, timeout and error.
 	client.on('error', function(e){
 		// there was an error - exception is 1st argument
 	});
+	
+	// connect to the memcache server after subscribing to some or all of these events
+	client.connect()
 
 After connecting, you can start to make requests.
 
