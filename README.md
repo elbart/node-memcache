@@ -19,13 +19,16 @@ Usage
 
 Create a Client object to start working.
 Host and port can be passed to the constructor or set afterwards.
-They have sensible defaults.
+They have sensible defaults. 
 
 	var memcache = require('./memcache');
 
 	var client = new memcache.Client(port, host);
 	client.port = 11211;
 	client.host = 'localhost';
+	
+	// connect to the memcache server
+	client.connect()
 
 The Client object emits 4 important events - connect, close, timeout and error.
 
