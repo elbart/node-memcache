@@ -2,7 +2,7 @@
 tests for expresso
 */
 
-var sys = require('sys'),
+var util = require('util'),
     memcache = require('memcache'),
     assert = require('assert'),
     port = 11211;
@@ -19,7 +19,7 @@ mc.on('error', function(e){
 	}
 
 	exports['startup test'] = function(){
-		assert.ok(false, "Unexpected error during connection: "+sys.inspect(e));
+		assert.ok(false, "Unexpected error during connection: "+util.inspect(e));
 	}
 });
 mc.connect();

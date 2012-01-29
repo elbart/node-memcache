@@ -1,4 +1,4 @@
-var sys      = require('sys');
+var util      = require('util');
 var memcache = require('./lib/memcache');
 
 function microtime(get_as_float) {  
@@ -9,7 +9,7 @@ function microtime(get_as_float) {
 
 var onConnect = function() {
 	mcClient.get('test', function(err, data) {
-		sys.debug(data);
+		util.debug(data);
 		mcClient.close();
 	});
 };
@@ -24,7 +24,7 @@ var benchmark = function() {
 			x += 1;
 			if (x == count) {
 				end = microtime(true);
-				sys.debug('total time: ' + (end - start));
+				util.debug('total time: ' + (end - start));
 			}
 		});
 	}
@@ -35,7 +35,7 @@ var benchmark = function() {
 var setKey = function() {
 	mcClient.set('test', 'hello \r\n node-memcache', function(err, response) {
 		mcClient.get('test', function(err, data) {
-			sys.debug(data);
+			util.debug(data);
 			mcClient.close();
 		});
 	});
@@ -43,21 +43,21 @@ var setKey = function() {
 
 var version = function() {
 	mcClient.version(function(err, version) {
-		sys.debug(version);
+		util.debug(version);
 		mcClient.close();
 	});
 };
 
 var incr = function() {
 	mcClient.increment('x', 2, function(err, new_value) {
-		sys.debug(new_value);
+		util.debug(new_value);
 		mcClient.close();
 	});
 };
 
 var decr = function() {
 	mcClient.decrement('x', 1, function(err, new_value) {
-		sys.debug(new_value);
+		util.debug(new_value);
 		mcClient.close();
 	});
 };
