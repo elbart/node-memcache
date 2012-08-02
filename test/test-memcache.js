@@ -100,6 +100,28 @@ mc.addHandler(function() {
 		});
 	};
 
+	exports['test set exist'] = function(beforeExit) {
+		var n = 0;
+		// set key
+		mc.set('existKey', 'asdf', function() {
+			n++;
+			mc.exist('existKey', function (err, r) {
+				// the key exists
+				assert.equal('EXISTS', r);
+				n++;
+			});
+			mc.exist('notFoundKey', function (err, r) {
+				// the key is not found
+				assert.equal('NOT_FOUND', r);
+				n++;
+			});
+		}, 0);
+		
+		beforeExit(function() {
+			assert.equal(3, n);
+		});
+	};
+
     // test utf8 handling
     exports['utf8'] = function(beforeExit) {
         mc.set('key1', 'привет', function() {
