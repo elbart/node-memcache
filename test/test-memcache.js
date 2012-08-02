@@ -111,7 +111,7 @@ mc.addHandler(function() {
 				n++;
 			});
 			mc.exist('notFoundKey', function (err, r) {
-				// the key exists
+				// the key is not found
 				assert.equal('NOT_FOUND', r);
 				n++;
 			});
