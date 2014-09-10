@@ -193,8 +193,7 @@ mc.addHandler(function() {
 
 		mc.version(function(error, success){
 			n++;
-			assert.equal(error, null);
-			assert.length(success, 5);
+			assert.equal(true, !! success.match(/^[0-9\.]+$/));
 		});
 
 		beforeExit(function(){
