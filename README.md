@@ -7,7 +7,7 @@ A pure-JavaScript memcached library for node.
 Tests
 -----
 
-To run the test suite, first insall <a href="http://github.com/visionmedia/expresso">expresso</a>,
+To run the test suite, first install <a href="http://github.com/visionmedia/expresso">expresso</a>,
 then run <code>make test</code>.
 
 If you have <a href="http://github.com/visionmedia/node-jscoverage">node-jscoverage</a> you can
