@@ -70,7 +70,7 @@ After connecting, you can start to make requests.
 		// delete a key from cache.
 	});
 
-	client.version(function(error, result)){
+	client.version(function(error, result){
 
 		// grab the server version
 	});
